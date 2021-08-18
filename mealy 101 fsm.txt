@@ -1,0 +1,48 @@
+module fsm101(clk,rst,in,out);
+  input clk,rst,in;
+  output out;
+  reg[1:0]cs,ns;
+  parameter s0=1,s1=2,s2=3;
+  always@(posedge clk)
+    if(rst)
+      cs<=0;
+  else
+    cs<=ns;
+  always@(in,cs)
+    case(cs)
+     
+       s0:if(in) ns<=s1;else ns<=s0;
+      s1:if(in) ns<=s1;else ns<=s2;
+      s2:if(in) ns<=s1;else ns<=s0;
+       
+    endcase
+  assign out=(cs==s2)?1'b1:1'b0;
+endmodule
+
+test bench-
+`timescale 1ns/1ps
+module seqfsm;
+  reg clk,rst,in;
+  wire out;
+  fsm101 f1(clk,rst,in,out);
+  always #5 clk=~clk;
+  initial begin 
+    clk=0;
+    rst=0;
+    #5 rst=1;
+    #2 rst=0;
+  end
+  initial begin
+    
+    #25 in=1;
+    #10 in=0;
+    #10 in=1;
+  #100 $finish;
+  end
+  initial begin 
+    $dumpfile("fsm.vcd");
+    $dumpvars;
+  end
+  initial 
+    $monitor("simtime=0%g,clk=%b,rst=%b,in=%b,out=%b",$time,clk,rst,in,out);
+endmodule
