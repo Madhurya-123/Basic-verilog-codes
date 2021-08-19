@@ -1,0 +1,51 @@
+module fsm101(clk,rst,in,out);
+  input clk,rst,in;
+  output reg out;
+   reg[1:0]cs,ns;
+  parameter s0=0,s1=1,s2=2,s3=3;
+  always@(posedge clk,posedge rst)
+    begin
+      if(rst)
+        cs<=s0;
+      else
+        cs<=ns;
+    end
+  always@(cs,in)
+    begin
+      case(cs)
+        s0:begin
+          if(in)
+            ns<=s1;
+          else
+            ns<=s0;
+        end
+        s1:begin
+          if(in)
+            ns<=s1;
+          else
+            ns<=s2;
+        end
+        s2:begin
+          if(in)
+            ns<=s3;
+          else
+            ns<=s2;
+        end
+        s3:begin
+          if(in)
+            ns<=s1;
+          else
+            ns<=s2;
+        end
+      endcase
+    end
+  always@(cs)
+    begin
+      case(cs)
+        s0:out<=0;
+         s1:out<=0;
+         s2:out<=0;
+         s3:out<=1;
+      endcase
+    end
+ endmodule
