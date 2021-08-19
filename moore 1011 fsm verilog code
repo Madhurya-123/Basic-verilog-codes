@@ -1,0 +1,57 @@
+module fsm1011(clk,rst,in,z);
+  input clk,rst,in;
+  output reg  z;
+  reg[2:0]cs,ns;
+  parameter s0=0,s1=1,s2=2,s3=3,s4=4;
+  always@(posedge clk or posedge rst)
+    if(rst)
+      cs<=0;
+  else
+    cs<=ns;
+  always@(cs,in)
+    begin
+      case(cs)
+     
+     s0:ns=in?s1:s0;
+     s1:ns=in?s1:s2;
+     s2:ns=in?s3:s0;
+     s3:ns=in?s4:s2;
+     s4:ns=in?s1:s2;
+       default:ns=0;
+     endcase
+    end 
+  always@(cs)
+    begin
+      case(cs)
+        s4:z=1;
+        default:z=0;
+      endcase
+    end
+ endmodule
+
+test bench-
+
+`timescale 1ns/1ps
+module seq1fsm;
+  reg clk,rst,in;
+  wire z;
+  fsm1011 f1(clk,rst,in,z);
+  always #5 clk=~clk;
+  initial begin 
+    clk=0;
+    rst=1;
+    #5 rst=0;
+  end
+  initial begin
+    $monitor("&t %d %d " ,$time,f1.cs,f1.ns);
+    #20 in=1;
+    #10 in=0;
+    #10 in=1;
+    #10 in=1;
+  #50$finish;
+  end
+  initial begin 
+    $dumpfile("fsm.vcd");
+    $dumpvars(1);
+  end
+endmodule
