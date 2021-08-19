@@ -1,0 +1,38 @@
+module counter(clk,rst,q);
+  input clk,rst;
+  output reg [2:0]q;
+  always@(posedge clk or posedge rst)
+    begin
+      if(~rst)
+        q<=0;
+      else 
+        q<=q+1;
+    end
+endmodule
+
+Test bench-
+
+`timescale 1ns/1ps
+module tb_counter;
+  reg clk;
+  reg rst;
+  wire [2:0]q;
+  counter c1(clk,rst,q);
+  
+  always #5 clk=~clk;
+  initial begin 
+    $dumpfile("counter.vcd");
+    $dumpvars;
+  end
+  
+  initial begin 
+    clk<=0;
+    rst<=0;
+    #20 rst<=1;
+    #40 rst<=0;
+    #60 rst<=1;//120ns
+    #30 $finish;//after 150ns 
+  end 
+  initial 
+    $monitor("simtime=0%g,clk=%b,rst=%b,q=%b",$time,clk,rst,q);
+endmodule
